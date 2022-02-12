@@ -12,8 +12,7 @@ export class UserController {
 
     @Post('register')
     registerAction(@Body() createUserDto: CreateUserDto): Promise<UserInterface> {
-       console.log(createUserDto)
-        return /* this.userService.createUser(createUserDto); */
+        return this.userService.createUser(createUserDto);
     }
     
     @Post('login')
