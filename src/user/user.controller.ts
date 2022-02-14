@@ -1,8 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { UserIdParam } from './dto/user-id.param';
+import { CreateUserDto, LoginDto, UpdateUserDto } from './dto/user.dtos';
+import { UserParams } from './dto/user.param';
 import { UserInterface } from './interface/user.interface';
 import { UserService } from './user.service';
 
@@ -21,18 +19,18 @@ export class UserController {
     }
 
     @Get(':userId')
-    findAction(@Param() params: UserIdParam) { 
-        return `User ${params.userId} `;
+    findAction(@Param() params: UserParams) { 
+        return this.userService.findUserById(params.userId);
     }
      
     @Put(':userId')
-    updateAction(@Body() updateUserDto: UpdateUserDto, @Param('userId') userId) {
-        return updateUserDto;
+    updateAction(@Body() updateUserDto: UpdateUserDto, @Param() params: UserParams) {
+        return this.userService.updateUser(params.userId, updateUserDto);
     }
     
     @Delete(':userId')
-    deleteAction(@Param('userId') userId) {
-        return `deleted user ${userId}`;
+    deleteAction(@Param() params: UserParams) {
+        return this.userService.deleteUser(params.userId);
     }
 
 }
