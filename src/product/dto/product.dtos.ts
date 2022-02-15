@@ -1,4 +1,4 @@
-import { PartialType } from "@nestjs/mapped-types";
+import { PartialType, PickType } from "@nestjs/mapped-types";
 import { Transform } from "class-transformer";
 import { IsNumber, IsString, ValidateIf } from "class-validator";
 import * as sanitize from "sanitize-html";
@@ -30,3 +30,7 @@ export class CreateProductDto {
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto)  {}
+
+export class ProductQueryDto extends PartialType(
+    PickType(CreateProductDto, ['referenceCode', 'name'])
+) {}

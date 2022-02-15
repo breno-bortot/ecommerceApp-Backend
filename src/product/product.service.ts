@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { isNotEmptyObject } from 'class-validator';
 import { Model } from 'mongoose';
 import { UserInterface } from 'src/user/interface/user.interface';
-import { CreateProductDto, UpdateProductDto } from './dto/product.dtos';
+import { CreateProductDto, ProductQueryDto, UpdateProductDto } from './dto/product.dtos';
 import { ProductParams } from './dto/product.params';
 import { ProductInterface } from './interface/product.interface';
 
@@ -36,16 +37,65 @@ export class ProductService {
         }
     }
 
-    findAll() {
+    async findAll(query): Promise<ProductInterface[]> {
+        try {
+            if (isNotEmptyObject(query)) {
+                let list = await this.productModel.find({
+                    $or: [
+                        { 
+                            referenceCode: query.referenceCode? {
+                                $regex: query.referenceCode,
+                                $options: 'ig'
+                            } : ''
+                        },
+                        { 
+                            name: query.name? {
+                                $regex: query.name,
+                                $options: 'ig'
+                            } : ''
+                        }
+                    ]
+                })
 
+                return list;
+            }
+            
+            let list = await this.productModel.find();
+            
+            return list;
+
+        } catch (error) {
+            
+            return error.message;
+
+        }
     }
 
-    findBySeller() {
+    async findBySeller(sellerId: string): Promise<ProductInterface[]> {
+        try {
+            const list = await this.productModel.find({ seller_id: sellerId });
 
+            return list;
+            
+        } catch (error) {
+            
+            return error.message;
+
+        }
     }
 
-    findOneById() {
+    async findOneById(params: ProductParams): Promise<ProductInterface> {
+        try {
+            const productDetails = await this.productModel.findById(params.productId);
+            await productDetails.populate('seller_id');
 
+            return productDetails;
+            
+        } catch (error) {
+            
+            return error.message;
+
+        }
     }
 
     async updateProduct(updateProductDto: UpdateProductDto, params: ProductParams) {

@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { CreateProductDto, UpdateProductDto } from './dto/product.dtos';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
+import { CreateProductDto, ProductQueryDto, UpdateProductDto } from './dto/product.dtos';
 import { ProductParams } from './dto/product.params';
 import { ProductService } from './product.service';
 
@@ -13,18 +13,18 @@ export class ProductController {
     }
     
     @Get('list')
-    listAllAction(){
-        return 'list action';
+    listAllAction(@Query() query: ProductQueryDto){
+        return this.productService.findAll(query);
     }
     
-    @Get('seller/list')
-    listBySellerAction(){
-        return 'list action';
+    @Get('seller/list/:sellerId')
+    listBySellerAction(@Param('sellerId') sellerId: string){
+        return this.productService.findBySeller(sellerId);
     }
     
     @Get('details/:productId')
     findOneAction(@Param() params: ProductParams){
-        return params;
+        return this.productService.findOneById(params);
     }
     
     @Put(':productId')

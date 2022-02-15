@@ -34,3 +34,7 @@ export const ProductSchema = new mongoose.Schema({
      default: () => Date.now()
     }
 });
+
+ProductSchema.set('toJSON', {
+    transform: (doc, { __v, ...rest}) => rest 
+})
