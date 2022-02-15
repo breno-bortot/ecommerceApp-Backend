@@ -19,17 +19,17 @@ export class UserController {
     }
 
     @Get(':userId')
-    findAction(@Param() params: UserParams) { 
+    findAction(@Param() params: UserParams): Promise<UserInterface> { 
         return this.userService.findUserById(params.userId);
     }
      
     @Put(':userId')
-    updateAction(@Body() updateUserDto: UpdateUserDto, @Param() params: UserParams) {
+    updateAction(@Body() updateUserDto: UpdateUserDto, @Param() params: UserParams): Promise<UserInterface> {
         return this.userService.updateUser(params.userId, updateUserDto);
     }
     
     @Delete(':userId')
-    deleteAction(@Param() params: UserParams) {
+    deleteAction(@Param() params: UserParams): Promise<UserInterface> {
         return this.userService.deleteUser(params.userId);
     }
 

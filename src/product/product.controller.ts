@@ -13,7 +13,12 @@ export class ProductController {
     }
     
     @Get('list')
-    findAllAction(){
+    listAllAction(){
+        return 'list action';
+    }
+    
+    @Get('seller/list')
+    listBySellerAction(){
         return 'list action';
     }
     
@@ -24,11 +29,11 @@ export class ProductController {
     
     @Put(':productId')
     updateAction(@Body() updateProductDto: UpdateProductDto, @Param() params: ProductParams){
-        return { updateProductDto, params };
+        return this.productService.updateProduct(updateProductDto, params);
     }
     
     @Delete(':productId')
     deleteAction(@Param() params: ProductParams){
-        return params;
+        return this.productService.deleteProduct(params);
     }
 }

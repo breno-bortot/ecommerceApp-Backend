@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserInterface } from 'src/user/interface/user.interface';
-import { CreateProductDto } from './dto/product.dtos';
+import { CreateProductDto, UpdateProductDto } from './dto/product.dtos';
+import { ProductParams } from './dto/product.params';
 import { ProductInterface } from './interface/product.interface';
 
 @Injectable()
@@ -27,6 +28,46 @@ export class ProductService {
             await newProduct.populate('seller_id');
 
             return newProduct;
+
+        } catch (error) {
+
+            return error.message;
+
+        }
+    }
+
+    findAll() {
+
+    }
+
+    findBySeller() {
+
+    }
+
+    findOneById() {
+
+    }
+
+    async updateProduct(updateProductDto: UpdateProductDto, params: ProductParams) {
+        try {
+            const updatedAt = Date.now();
+            const updateProductBody = { ...updateProductDto, updated_at: updatedAt };
+            const updatedProduct = await this.productModel.findByIdAndUpdate(params.productId, updateProductBody, { new: true });
+
+            return updatedProduct;
+
+        } catch (error) {
+
+            return error.message; 
+
+        }
+    }
+
+    async deleteProduct(params: ProductParams) {
+        try {
+            const productDeleted = await this.productModel.findByIdAndDelete(params.productId);
+
+            return productDeleted;
 
         } catch (error) {
 
