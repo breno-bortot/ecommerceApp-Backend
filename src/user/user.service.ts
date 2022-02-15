@@ -1,10 +1,8 @@
-import { Delete, Injectable, UseInterceptors } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserInterface } from './interface/user.interface';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dtos';
-import { AnyObject } from 'mongoose';
-
 
 @Injectable()
 export class UserService {

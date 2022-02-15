@@ -6,7 +6,7 @@ export const ProductSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    reference_code: {
+    referenceCode: {
         type: String,
         required: true
     },
@@ -23,11 +23,14 @@ export const ProductSchema = new mongoose.Schema({
         type: Number,
         required: true
     }, 
-    image_path: String,
+    imagePath: String,
     created_at: {
         type: Date,
         immutable: true,
-        default: Date.now()
+        default: () => Date.now()
     },
-    updated_at: Date
+    updated_at: {
+     type: Date,
+     default: () => Date.now()
+    }
 });
