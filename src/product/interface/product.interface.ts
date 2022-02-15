@@ -10,5 +10,6 @@ export interface ProductInterface extends Document {
     stock: number;
     imagePath?: string;
     created_at: Date;
-    updated_at: Date;
+    updated_at: Date
+
 }

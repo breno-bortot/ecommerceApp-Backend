@@ -13,17 +13,19 @@ export class UserService {
             const { email } = createUserDto;
             const user =  await this.userModel.findOne({email});
     
-            if(user){
+            if (user) {
                 throw { message: `Email: ${user.email}, is already in use`};
             }
-    
+
             const newUser = new this.userModel(createUserDto);
-            
             await newUser.save();
     
             return newUser; 
+            
         } catch (error) {
+            
             return error.message;
+
         }
     }
     
@@ -34,8 +36,11 @@ export class UserService {
             const user = await this.userModel.findById(userId);
             
             return user;
+
         } catch (error) {
+
             return error.message;
+
         }
        
     }
@@ -48,8 +53,11 @@ export class UserService {
             const updatedUser = await this.userModel.findByIdAndUpdate(userId, updateUserBody, { new: true });
             
             return updatedUser;
-        }catch (error) {
+            
+        } catch (error) {
+
             return error.message;
+            
         }
    }
 
@@ -58,8 +66,11 @@ export class UserService {
             const userDeleted = await this.userModel.findByIdAndDelete(userId);
 
             return userDeleted;
+
         } catch (error) {
+
             return error.message;
+
         }
     }
 }

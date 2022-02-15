@@ -7,9 +7,9 @@ import { ProductService } from './product.service';
 export class ProductController {
     constructor(private readonly productService: ProductService) {}
 
-    @Post('create')
-    createAction(@Body() createProductDto: CreateProductDto){
-        return createProductDto;
+    @Post('create/:sellerId')
+    createAction(@Body() createProductDto: CreateProductDto, @Param('sellerId') sellerId: string){
+        return this.productService.createProduct(createProductDto, sellerId);
     }
     
     @Get('list')
