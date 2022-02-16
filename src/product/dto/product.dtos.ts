@@ -24,7 +24,8 @@ export class CreateProductDto {
     readonly stock: number;
 
     @Transform(({ value }) => typeof(value) === 'string' ? sanitize(value, { disallowedTagsMode:"escape" }) : value)
-    @ValidateIf(CreateUserDto => CreateUserDto.seller )
+    @ValidateIf(CreateProductDto => CreateProductDto.imagePath
+        )
     @IsString()
     readonly imagePath?: string;
 }

@@ -18,11 +18,11 @@ export const CartSchema = new mongoose.Schema({
             }
         }
     ],
-    cart_total: {
+    cartTotal: {
         type: Number,
         default: 0
     },
-    checkout_done: {
+    checkoutDone: {
         type: Boolean,
         default: false
     },
@@ -31,5 +31,12 @@ export const CartSchema = new mongoose.Schema({
         immutable: true,
         default: () => Date.now()
     },
-    updated_at: Date
+    updated_at: {
+        type: Date,
+        default: () => Date.now()
+       }
 });
+
+CartSchema.set('toJSON', {
+    transform: (doc, { __v, ...rest}) => rest 
+})
