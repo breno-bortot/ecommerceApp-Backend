@@ -2,10 +2,10 @@ import { IsNumber, IsString, ValidateNested } from "class-validator";
 import * as sanitize from "sanitize-html";
 import { Transform, Type } from "class-transformer";
 
-class ProductCartDto { 
+class CartProductDto { 
     @Transform(({ value }) => typeof(value) === 'string' ? sanitize(value, { disallowedTagsMode:"escape" }) : value)
     @IsString()
-    readonly productId: string;
+    readonly cartProductId: string;
 
     @IsNumber()
     readonly quantity: number;
@@ -15,6 +15,6 @@ class ProductCartDto {
 export class CreateCartDto {
     @ValidateNested()
     // Thank you Chanlito from gitHub!!! hehehe
-    @Type(() => ProductCartDto)
-    readonly products: ProductCartDto;
+    @Type(() => CartProductDto)
+    readonly cartProducts: CartProductDto;
 }
