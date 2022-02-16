@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { CartService } from './cart.service';
-import { CreateCartDto } from './dto/cart.dtos';
+import { CreateCartDto, UpdateCartDto } from './dto/cart.dtos';
 import { CartInterface } from './interface/cart.interface';
 
 @Controller('cart')
@@ -17,9 +17,9 @@ export class CartController {
 
     }
     
-    @Put('update/:cartId')
-    updateAction() {
-
+    @Put('update/:cartId/:customerId')
+    updateAction(@Body() updateCartDto: CreateCartDto, @Param() params): Promise<CartInterface> {  
+        return this.cartService.updateCart(updateCartDto, params)
     }
 }
 
