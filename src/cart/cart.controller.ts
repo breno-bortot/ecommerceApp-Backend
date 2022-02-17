@@ -13,8 +13,8 @@ export class CartController {
     }   
     
     @Get(':cartId')
-    findByIdAction() {
-
+    findByIdAction(@Param('cartId') cartId: string): Promise<CartInterface>  {
+        return this.cartService.findCartbyId(cartId);
     }
     
     @Put('update/:cartId/:customerId')

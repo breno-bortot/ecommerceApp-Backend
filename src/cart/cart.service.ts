@@ -34,6 +34,19 @@ export class CartService {
         }
     }
 
+    async findCartbyId(cartId: string) {
+        try {
+            const cart = await this.cartModel.findById(cartId)
+                .populate('cartProducts.cartProductId');
+
+            return cart;              
+        } catch (error) {
+            
+            return error.message;
+
+        }
+    }
+
     async updateCart(updateCartDto, params) {
         try {
             const cart = await this.cartModel.findOne({ _id: params.cartId, customer_id: params.customerId })
