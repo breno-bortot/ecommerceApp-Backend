@@ -7,17 +7,17 @@ import { CartInterface } from './interface/cart.interface';
 export class CartController {
     constructor(private readonly cartService: CartService) {}
 
-    @Post('create/:customerId')
-    createAction(@Body() createCartDto: CreateCartDto, @Param('customerId') customerId: string): Promise<CartInterface> {
-        return this.cartService.createCart(createCartDto, customerId);
+    @Post('create/:customer_id')
+    createAction(@Body() createCartDto: CreateCartDto, @Param('customer_id') customer_id: string): Promise<CartInterface> {
+        return this.cartService.createCart(createCartDto, customer_id);
     }   
     
-    @Get(':cartId')
-    findByIdAction(@Param('cartId') cartId: string): Promise<CartInterface>  {
-        return this.cartService.findCartbyId(cartId);
+    @Get(':cart_id')
+    findByIdAction(@Param('cart_id') cart_id: string): Promise<CartInterface>  {
+        return this.cartService.findCartbyId(cart_id);
     }
     
-    @Put('update/:cartId/:customerId')
+    @Put('update/:cart_id/:customer_id')
     updateAction(@Body() updateCartDto: CreateCartDto, @Param() params): Promise<CartInterface> {  
         return this.cartService.updateCart(updateCartDto, params)
     }

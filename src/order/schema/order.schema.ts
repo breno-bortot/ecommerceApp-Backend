@@ -1,4 +1,3 @@
-import { randomBytes, randomFill, randomInt } from 'crypto';
 import * as mongoose from 'mongoose';
 
 export const OrderSchema = new mongoose.Schema({
@@ -7,12 +6,11 @@ export const OrderSchema = new mongoose.Schema({
         ref: 'Cart',
         required: true
     },
-    order_number: {
+    order_total: {
         type: Number,
-        index: true
+        default: 0
     },
-    order_total: Number,
-    payment_Methods: String,
+    payment_method: String,
     deliver_to: {
         country: String,
         state: String,
@@ -20,9 +18,17 @@ export const OrderSchema = new mongoose.Schema({
         adress: String,
         zip_code: Number
     },
+    delivery_fee: {
+        type: Number,
+        default: 67
+    },
     created_at: {
         type: Date,
         immutable: true,
         default: () => Date.now()
     },
 });
+
+OrderSchema.set('toJSON', {
+    transform: (doc, { __v, ...rest}) => rest 
+})

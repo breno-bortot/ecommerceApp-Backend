@@ -8,20 +8,20 @@ import { CartInterface } from './interface/cart.interface';
 export class CartService {
     constructor(@InjectModel('Cart') private readonly cartModel: Model<CartInterface>) {}
 
-    async createCart(createCartDto: CreateCartDto, customerId: string) {
+    async createCart(createCartDto: CreateCartDto, customer_id: string) {
         try {
             const createCartBody = {
-                customer_id: customerId,
-                cartProducts: createCartDto.cartProducts
+                customer_id,
+                cart_products: createCartDto.cart_products
             };
             const cart = await new this.cartModel(createCartBody)
-                .populate('cartProducts.cartProductId');
+                .populate('cart_products.cart_product_id');
             
-            const cartTotal = await cart.cartProducts.reduce((acc, cartProduct) => {
-                const price = cartProduct.cartProductId.price * cartProduct.quantity;
+            const cartTotal = await cart.cart_products.reduce((acc, cartProduct) => {
+                const price = cartProduct.cart_product_id.price * cartProduct.quantity;
                 return acc + price;
             }, 0);
-           cart.cartTotal = Number(cartTotal.toFixed(2));
+           cart.cart_total = Number(cartTotal.toFixed(2));
             
             const newCart = await cart.save();
 
@@ -34,10 +34,10 @@ export class CartService {
         }
     }
 
-    async findCartbyId(cartId: string) {
+    async findCartbyId(cart_id: string) {
         try {
-            const cart = await this.cartModel.findById(cartId)
-                .populate('cartProducts.cartProductId');
+            const cart = await this.cartModel.findById(cart_id)
+                .populate('cart_products.cart_product_id');
 
             return cart;              
         } catch (error) {
@@ -49,21 +49,21 @@ export class CartService {
 
     async updateCart(updateCartDto, params) {
         try {
-            const cart = await this.cartModel.findOne({ _id: params.cartId, customer_id: params.customerId })
+            const cart = await this.cartModel.findOne({ _id: params.cart_id, customer_id: params.customer_id })
 
             if (!cart) {
-                throw { message: `Invalid Customer for this Cart` }
+                throw { message: `Unauthorized Customer for this Cart` }
             }
             
-            cart.cartProducts = updateCartDto.cartProducts;
+            cart.cart_products = updateCartDto.cart_products;
 
-            await cart.populate('cartProducts.cartProductId');
+            await cart.populate('cart_products.cart_product_id');
        
-            const cartTotal = await cart.cartProducts.reduce((acc, cartProduct) => {
-                const price = cartProduct.cartProductId.price * cartProduct.quantity;
+            const cartTotal = await cart.cart_products.reduce((acc, cartProduct) => {
+                const price = cartProduct.cart_product_id.price * cartProduct.quantity;
                 return acc + price;
             }, 0);
-            cart.cartTotal = Number(cartTotal.toFixed(2));            
+            cart.cart_total = Number(cartTotal.toFixed(2));            
             
             const updatedCart = await cart.save();
            

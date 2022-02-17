@@ -6,7 +6,7 @@ import * as sanitize from "sanitize-html";
 export class CreateProductDto {
     @Transform(({ value }) => typeof(value) === 'string' ? sanitize(value, { disallowedTagsMode:"escape" }) : value)
     @IsString()
-    readonly referenceCode: string;
+    readonly reference_code: string;
     
     @Transform(({ value }) => typeof(value) === 'string' ? sanitize(value, { disallowedTagsMode:"escape" }) : value)
     @IsString()
@@ -33,5 +33,5 @@ export class CreateProductDto {
 export class UpdateProductDto extends PartialType(CreateProductDto)  {}
 
 export class ProductQueryDto extends PartialType(
-    PickType(CreateProductDto, ['referenceCode', 'name'])
+    PickType(CreateProductDto, ['reference_code', 'name'])
 ) {}

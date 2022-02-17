@@ -6,9 +6,9 @@ export const CartSchema = new mongoose.Schema({
        ref: 'User',
        required: true
    },
-   cartProducts: [
+   cart_products: [
         {
-            cartProductId:{
+            cart_product_id:{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product'
             },
@@ -18,11 +18,11 @@ export const CartSchema = new mongoose.Schema({
             }
         }
     ],
-    cartTotal: {
+    cart_total: {
         type: Number,
         default: 0
     },
-    checkoutDone: {
+    checkout_done: {
         type: Boolean,
         default: false
     },

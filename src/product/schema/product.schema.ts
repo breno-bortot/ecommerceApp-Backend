@@ -6,7 +6,7 @@ export const ProductSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    referenceCode: {
+    reference_code: {
         type: String,
         required: true
     },

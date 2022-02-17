@@ -6,7 +6,7 @@ import { PartialType } from "@nestjs/mapped-types";
 class CartProductDto { 
     @Transform(({ value }) => typeof(value) === 'string' ? sanitize(value, { disallowedTagsMode:"escape" }) : value)
     @IsString()
-    readonly cartProductId: string;
+    readonly cart_product_id: string;
 
     @IsNumber()
     readonly quantity: number;
@@ -17,7 +17,7 @@ export class CreateCartDto {
     @ValidateNested()
     // Thank you Chanlito from gitHub!!! hehehe
     @Type(() => CartProductDto)
-    readonly cartProducts: CartProductDto;
+    readonly cart_products: CartProductDto;
 }
 
 export class UpdateCartDto extends PartialType(CreateCartDto) {}

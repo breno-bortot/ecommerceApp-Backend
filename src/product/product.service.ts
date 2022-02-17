@@ -13,11 +13,11 @@ export class ProductService {
 
     async createProduct(createProductDto: CreateProductDto, sellerId: string) {
         try {
-            const { referenceCode } = createProductDto;
-            const product = await this.productModel.findOne({ referenceCode });
+            const { reference_code } = createProductDto;
+            const product = await this.productModel.findOne({ reference_code });
 
             if (product) {
-                throw { message: `ReferenceCode ${referenceCode} is already in use`};
+                throw { message: `reference_code ${reference_code} is already in use`};
             }
 
             const newProduct = await new this.productModel({
@@ -43,8 +43,8 @@ export class ProductService {
                 let list = await this.productModel.find({
                     $or: [
                         { 
-                            referenceCode: query.referenceCode? {
-                                $regex: query.referenceCode,
+                            reference_code: query.reference_code? {
+                                $regex: query.reference_code,
                                 $options: 'ig'
                             } : ''
                         },
