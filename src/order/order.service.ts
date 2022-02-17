@@ -14,13 +14,14 @@ export class OrderService {
     async createOrder(createOrderDto: CreateOrderDto, customer_id: string) {
         try {
             const { cart_id, payment_method, deliver_to } = createOrderDto;
-            const cart = await this.cartModel.findOne({ _id: cart_id, customer_id: customer_id })
+            const cart = await this.cartModel.findOneAndUpdate({ _id: cart_id, customer_id: customer_id }, { checkout_done: true }, { new: true })
 
             if (!cart) {
                 throw { message: `Unauthorized Customer for this Cart` }
             }
 
             const createOrderBody = {
+                order_customer_id: customer_id,
                 cart_id: cart,
                 payment_method,
                 deliver_to
@@ -39,6 +40,46 @@ export class OrderService {
             
             return error.message;
     
+        }
+    }
+
+    async findByCustomer(customer_id: string): Promise<OrderInterface[]> {
+        try {
+            const list = await this.orderModel.find({ order_customer_id: customer_id });
+
+            return list;
+
+        } catch (error) {
+            
+            return error.message;
+
+        }
+    }
+
+    async findOne(params) {
+        try {
+            const { order_id, customer_id } = params;
+            const orderDetails = await this.orderModel.findOne({ 
+                _id: order_id, 
+                order_customer_id: customer_id
+            })
+            
+            if (!orderDetails) {
+                throw { message: `Unauthorized Customer for this Order` }
+            }
+
+            await orderDetails.populate('order_customer_id');
+            await orderDetails.populate('cart_id');
+            await orderDetails.populate('cart_id.cart_products.cart_product_id');
+            await orderDetails.populate('cart_id.cart_products.cart_product_id');
+            await orderDetails.populate('cart_id.cart_products.cart_product_id.seller_id');
+            
+            return orderDetails;
+
+        } catch (error) {
+            
+            return error.message;
+
         }
     }
     

@@ -11,7 +11,7 @@ import { ProductInterface } from './interface/product.interface';
 export class ProductService {
     constructor(@InjectModel('Product') private readonly productModel: Model<ProductInterface>) {}
 
-    async createProduct(createProductDto: CreateProductDto, sellerId: string) {
+    async createProduct(createProductDto: CreateProductDto, seller_id: string) {
         try {
             const { reference_code } = createProductDto;
             const product = await this.productModel.findOne({ reference_code });
@@ -21,7 +21,7 @@ export class ProductService {
             }
 
             const newProduct = await new this.productModel({
-                seller_id: sellerId,
+                seller_id,
                 ...createProductDto
             })
             
@@ -71,9 +71,9 @@ export class ProductService {
         }
     }
 
-    async findBySeller(sellerId: string): Promise<ProductInterface[]> {
+    async findBySeller(seller_id: string): Promise<ProductInterface[]> {
         try {
-            const list = await this.productModel.find({ seller_id: sellerId });
+            const list = await this.productModel.find({ seller_id });
 
             return list;
             

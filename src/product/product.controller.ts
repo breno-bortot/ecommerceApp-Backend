@@ -8,9 +8,9 @@ import { ProductService } from './product.service';
 export class ProductController {
     constructor(private readonly productService: ProductService) {}
 
-    @Post('create/:sellerId')
-    createAction(@Body() createProductDto: CreateProductDto, @Param('sellerId') sellerId: string): Promise<ProductInterface>{
-        return this.productService.createProduct(createProductDto, sellerId);
+    @Post('create/:seller_id')
+    createAction(@Body() createProductDto: CreateProductDto, @Param('seller_id') seller_id: string): Promise<ProductInterface>{
+        return this.productService.createProduct(createProductDto, seller_id);
     }
     
     @Get('list')
@@ -18,9 +18,9 @@ export class ProductController {
         return this.productService.findAll(query);
     }
     
-    @Get('seller/list/:sellerId')
-    listBySellerAction(@Param('sellerId') sellerId: string): Promise<ProductInterface[]>{
-        return this.productService.findBySeller(sellerId);
+    @Get('seller/list/:seller_id')
+    listBySellerAction(@Param('seller_id') seller_id: string): Promise<ProductInterface[]>{
+        return this.productService.findBySeller(seller_id);
     }
     
     @Get('details/:productId')

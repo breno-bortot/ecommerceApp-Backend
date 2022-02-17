@@ -1,6 +1,11 @@
 import * as mongoose from 'mongoose';
 
 export const OrderSchema = new mongoose.Schema({
+    order_customer_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     cart_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart',

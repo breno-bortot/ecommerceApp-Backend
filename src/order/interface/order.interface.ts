@@ -1,4 +1,5 @@
 import { CartInterface } from "src/cart/interface/cart.interface";
+import { UserInterface } from "src/user/interface/user.interface";
 
 interface deliver_toInterface {
     country: string;
@@ -9,6 +10,7 @@ interface deliver_toInterface {
 }
 
 export interface OrderInterface extends Document {
+    order_customer_id: UserInterface;
     cart_id: CartInterface;
     order_total: number;
     payment_method: string;
