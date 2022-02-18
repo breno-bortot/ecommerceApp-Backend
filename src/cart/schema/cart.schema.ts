@@ -6,6 +6,14 @@ export const CartSchema = new mongoose.Schema({
        ref: 'User',
        required: true
    },
+   cart_sellers: [
+      {
+        seller_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+      }
+   ],
    cart_products: [
         {
             cart_product_id:{

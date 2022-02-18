@@ -6,6 +6,9 @@ export const OrderSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    order_sellers: {
+        type: Array
+    },
     cart_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Cart',

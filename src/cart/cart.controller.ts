@@ -6,17 +6,17 @@ import { CartInterface } from './interface/cart.interface';
 @Controller('cart')
 export class CartController {
     constructor(private readonly cartService: CartService) {}
-
+    //User authentication/ Customer authorization
     @Post('create/:customer_id')
     createAction(@Body() createCartDto: CreateCartDto, @Param('customer_id') customer_id: string): Promise<CartInterface> {
         return this.cartService.createCart(createCartDto, customer_id);
     }   
-    
+    //User authentication/ Customer authorization
     @Get(':cart_id')
     findByIdAction(@Param('cart_id') cart_id: string): Promise<CartInterface>  {
         return this.cartService.findCartbyId(cart_id);
     }
-    
+    //User authentication/ Customer authorization
     @Put('update/:cart_id/:customer_id')
     updateAction(@Body() updateCartDto: CreateCartDto, @Param() params): Promise<CartInterface> {  
         return this.cartService.updateCart(updateCartDto, params)

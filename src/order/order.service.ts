@@ -17,15 +17,18 @@ export class OrderService {
     async createOrder(createOrderDto: CreateOrderDto, customer_id: string) {
         try {
             const { cart_id, payment_method, deliver_to } = createOrderDto;
-            const cart = await this.cartModel.findOneAndUpdate(
-                { _id: cart_id, customer_id: customer_id }, 
-                { checkout_done: true }, 
-                { new: true }
-            )
+            
+            const cart = await this.cartModel.findOne({ _id: cart_id, customer_id: customer_id })
 
             if (!cart) {
                 throw { message: `Unauthorized Customer for this Cart` }
             }
+
+            if (cart.checkout_done) {
+                throw { message: `Cart's checkout has already been done.`}
+            }
+
+            cart.checkout_done = true;
 
             await Promise.all(cart.cart_products.map(async cartProduct => {
                 const outdatedProduct = await this.productModel.findById(cartProduct.cart_product_id);
@@ -43,9 +46,9 @@ export class OrderService {
                 )
             }))
 
-            
             const createOrderBody = {
                 order_customer_id: customer_id,
+                order_sellers: cart.cart_sellers,
                 cart_id: cart,
                 payment_method,
                 deliver_to
@@ -69,9 +72,22 @@ export class OrderService {
 
     async findByCustomer(customer_id: string): Promise<OrderInterface[]> {
         try {
-            const list = await this.orderModel.find({ order_customer_id: customer_id });
+            const customerList = await this.orderModel.find({ order_customer_id: customer_id });
 
-            return list;
+            return customerList;
+
+        } catch (error) {
+            
+            return error.message;
+
+        }
+    }
+    
+    async findBySeller(seller_id: string): Promise<OrderInterface[]> {
+        try {
+            const sellerList = await this.orderModel.find({ "order_sellers['seller_id']": seller_id });
+
+            return sellerList;
 
         } catch (error) {
             

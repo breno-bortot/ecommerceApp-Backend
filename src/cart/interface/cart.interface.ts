@@ -8,6 +8,7 @@ interface CartProductInterface {
 
 export interface CartInterface extends Document {
     customer_id: UserInterface;
+    cart_sellers: object[];
     cart_products: CartProductInterface[];
     cart_total: number;
     checkout_done: boolean;

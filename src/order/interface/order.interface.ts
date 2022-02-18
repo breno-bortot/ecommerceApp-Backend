@@ -11,6 +11,7 @@ interface deliver_toInterface {
 
 export interface OrderInterface extends Document {
     order_customer_id: UserInterface;
+    order_sellers: object[];
     cart_id: CartInterface;
     order_total: number;
     payment_method: string;

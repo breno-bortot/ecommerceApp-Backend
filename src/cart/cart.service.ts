@@ -21,7 +21,12 @@ export class CartService {
                 const price = cartProduct.cart_product_id.price * cartProduct.quantity;
                 return acc + price;
             }, 0);
-           cart.cart_total = Number(cartTotal.toFixed(2));
+            cart.cart_total = Number(cartTotal.toFixed(2));
+            
+            const cartSellers = cart.cart_products.map(product => {
+                    return { seller_id: product.cart_product_id.seller_id };
+            })
+            cart.cart_sellers = cartSellers;
             
             const newCart = await cart.save();
 
