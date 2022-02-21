@@ -1,4 +1,6 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from 'src/auth/auth.service';
 import { CreateUserDto, LoginDto, UpdateUserDto } from './dto/user.dtos';
 import { UserParams } from './dto/user.params';
 import { UserInterface } from './interface/user.interface';
@@ -6,16 +8,41 @@ import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+        private readonly authService: AuthService
+    ) {}
 
+    @Get('auth')
+    @UseGuards(AuthGuard('jwt'))
+    tempAuth() {
+        return { auth: 'works'}
+    }
+    
     @Post('register')
-    registerAction(@Body() createUserDto: CreateUserDto): Promise<UserInterface> {
-        return this.userService.createUser(createUserDto);
+    async registerAction(@Body() createUserDto: CreateUserDto): Promise<object> {
+        const user = await this.userService.createUser(createUserDto);
+        const payload = {
+            email: user.email,
+            seller: user.seller
+        }
+
+        const token = await this.authService.signPayload(payload);
+
+        return { user, token };
     }
     
     @Post('login')
-    loginAction(@Body() loginDto: LoginDto) {
-        return loginDto;
+    async loginAction(@Body() loginDto: LoginDto): Promise<object> {
+        const user = await this.userService.findUserByLogin(loginDto);
+        const payload = {
+            email: user.email,
+            seller: user.seller
+        }
+
+        const token = await this.authService.signPayload(payload);
+
+        return { user, token };
     }
     //User authentication
     @Get(':userId')

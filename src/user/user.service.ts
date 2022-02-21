@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { UserInterface } from './interface/user.interface';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserDto, UpdateUserDto } from './dto/user.dtos';
+import { CreateUserDto, LoginDto, UpdateUserDto } from './dto/user.dtos';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -29,7 +30,41 @@ export class UserService {
         }
     }
     
-    findUserByLogin() {}
+    async findUserByLogin(loginDto: LoginDto): Promise<UserInterface> {
+        try {
+            const { email, password } = loginDto;
+            const user =  await this.userModel.findOne({ email });
+            
+            if (!user) {
+                throw { message: `Invalid Credentials`};
+            }
+
+            const passwordCheck = await bcrypt.compare(password, user.password);
+            if (!passwordCheck) {
+                throw { message: `Invalid Credentials`};
+            }
+        
+            return user;
+
+        } catch (error) {
+
+            return error.message;
+
+        }
+        
+    }
+
+    async findByPayload(payload: any) {
+        try {
+            const { email } = payload;
+            
+            return await this.userModel.findOne({ email });
+            
+        } catch (error) {
+            return error.message;
+        }
+     
+    }
     
     async findUserById(userId: string): Promise<UserInterface>{
         try {
