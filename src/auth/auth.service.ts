@@ -35,6 +35,16 @@ export class AuthService {
 
     }
 
+    async registerUser(createUserDto: CreateUserDto) {
+        try {
+            const newUser = await this.userService.createUser(createUserDto);
+
+            return this.loginUser(newUser);
+            
+        } catch (error) {
+            return error.message;
+        }
+    }
 
     private async loginUser(user: UserInterface) {
         try {
@@ -48,7 +58,5 @@ export class AuthService {
         }
     }
 
-    async registerUser(createUserDto: CreateUserDto) {
-
-    }
+   
 }
