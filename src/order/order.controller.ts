@@ -24,7 +24,7 @@ export class OrderController {
     //User authentication/ Customer
      authorization
     @Get('details/:order_id/:customer_id')
-    findOneAction(@Param() params): Promise<OrderInterface[]> {
+    findOneAction(@Param() params): Promise<OrderInterface> {
         return this.orderService.findOne(params);
     }
 

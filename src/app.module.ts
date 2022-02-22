@@ -8,7 +8,6 @@ import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
 import { AuthModule } from './auth/auth.module';
 
-
 @Module({
   imports: [MongooseModule.forRoot(process.env.MONGO_URI), UserModule, ProductModule, CartModule, OrderModule, AuthModule],
   controllers: [AppController],

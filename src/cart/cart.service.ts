@@ -1,15 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CreateCartDto, UpdateCartDto } from './dto/cart.dtos';
+import { CreateCartDto } from './dto/cart.dtos';
 import { CartInterface } from './interface/cart.interface';
 
 @Injectable()
 export class CartService {
     constructor(@InjectModel('Cart') private readonly cartModel: Model<CartInterface>) {}
 
-    async createCart(createCartDto: CreateCartDto, customer_id: string) {
-        try {
+    async createCart(createCartDto: CreateCartDto, customer_id: string): Promise<CartInterface> {
             const createCartBody = {
                 customer_id,
                 cart_products: createCartDto.cart_products
@@ -30,34 +29,34 @@ export class CartService {
             
             const newCart = await cart.save();
 
-            return newCart;
-            
-        } catch (error) {
-            
-            return error.message;
+            if (!newCart) {
+                throw new HttpException(`Cart was not saved in DB`, HttpStatus.INTERNAL_SERVER_ERROR)
+            }
 
-        }
+            return newCart;
     }
 
-    async findCartbyId(cart_id: string) {
+    async findCartbyId(cart_id: string): Promise<CartInterface> {
         try {
             const cart = await this.cartModel.findById(cart_id)
                 .populate('cart_products.cart_product_id');
-
-            return cart;              
-        } catch (error) {
             
-            return error.message;
+            if (!cart) {
+                throw new HttpException(`Product not found`, HttpStatus.NOT_FOUND)
+            }
 
+            return cart;      
+
+        } catch (error) {
+            throw new HttpException(`Invalid cart-id`, HttpStatus.BAD_REQUEST)
         }
     }
 
-    async updateCart(updateCartDto, params) {
-        try {
+    async updateCart(updateCartDto, params): Promise<CartInterface> {
             const cart = await this.cartModel.findOne({ _id: params.cart_id, customer_id: params.customer_id })
 
             if (!cart) {
-                throw { message: `Unauthorized Customer for this Cart` }
+                throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED)
             }
             
             cart.cart_products = updateCartDto.cart_products;
@@ -68,16 +67,14 @@ export class CartService {
                 const price = cartProduct.cart_product_id.price * cartProduct.quantity;
                 return acc + price;
             }, 0);
-            cart.cart_total = Number(cartTotal.toFixed(2));            
+            cart.cart_total = Number(cartTotal.toFixed(2));    
             
             const updatedCart = await cart.save();
+
+            if (!updatedCart) {
+                throw new HttpException(`Cart was not updated in DB`, HttpStatus.INTERNAL_SERVER_ERROR)
+            }
            
             return updatedCart;
-            
-        } catch (error) {
-            
-            return error.message;
-
-        }
     }
 }

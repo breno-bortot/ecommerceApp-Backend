@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserInterface } from './interface/user.interface';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { CreateUserDto, LoginDto, UpdateUserDto } from './dto/user.dtos';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dtos';
 
 @Injectable()
 export class UserService {
@@ -13,64 +13,55 @@ export class UserService {
     }
 
     async createUser(createUserDto: CreateUserDto): Promise<UserInterface> {
-        try {
             const { email } = createUserDto;
-            const user =  await this.userModel.findOne({email});
+            const user =  await this.userModel.findOne({ email });
     
             if (user) {
-                throw { message: `Email: ${user.email}, is already in use`};
+                throw new HttpException(`User already in use`, HttpStatus.BAD_REQUEST);
             }
 
             const newUser = new this.userModel(createUserDto);
             await newUser.save();
     
             return newUser; 
-            
-        } catch (error) {
-            
-            return error.message;
-
-        }
     }
     
     async findUserByEmail(email: string): Promise<UserInterface> {
-        try {
             const user =  await this.userModel.findOne({ email });
 
             return user;
-
-        } catch (error) {
-            return error.message;
-        }
     }
     
     async findUserById(userId: string): Promise<UserInterface>{
         try {
             const user = await this.userModel.findById(userId);
             
+            if (!user) {
+                throw new HttpException(`User Not found`, HttpStatus.NOT_FOUND);
+            } 
+            
             return user;
-
+            
         } catch (error) {
-
-            return error.message;
-
-        }
-       
+            throw new HttpException(`User Not found`, HttpStatus.NOT_FOUND);
+        }     
     }
     
-
    async updateUser(userId: string, updateUserDto: UpdateUserDto): Promise<UserInterface> {
         try {
             const updatedAt = Date.now();
             const updateUserBody = { ...updateUserDto, updated_at: updatedAt };
             const updatedUser = await this.userModel.findByIdAndUpdate(userId, updateUserBody, { new: true });
+            console.log(updatedUser)
+
+            if (!updatedUser) {
+                throw new HttpException(`User Not found`, HttpStatus.NOT_FOUND);
+            }
             
             return updatedUser;
             
         } catch (error) {
-
-            return error.message;
-            
+            throw new HttpException(`User Not found`, HttpStatus.NOT_FOUND);
         }
    }
 
@@ -78,12 +69,14 @@ export class UserService {
         try {
             const userDeleted = await this.userModel.findByIdAndDelete(userId);
 
+            if (!userDeleted) {
+                throw new HttpException(`User Not found`, HttpStatus.NOT_FOUND);
+            }
+
             return userDeleted;
 
-        } catch (error) {
-
-            return error.message;
-
+        } catch (error) {   
+            throw new HttpException(`User Not found`, HttpStatus.NOT_FOUND);
         }
     }
 }

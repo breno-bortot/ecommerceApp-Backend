@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto, LoginDto } from 'src/user/dto/user.dtos';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -12,41 +12,30 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) {}
 
-    async validateUser(loginDto: LoginDto): Promise<any> {
-        try {
+    async validateUser(loginDto: LoginDto): Promise<string> {
             const { email, password } = loginDto;
             const user = await this.userService.findUserByEmail(email);
 
             if (!user) {
-                throw { message: `Invalid Credentials`};
+                throw new HttpException(`Invalid Credentials`, HttpStatus.BAD_REQUEST);
             }
 
             const passwordCheck = await bcrypt.compare(password, user.password);
             if (!passwordCheck) {
-                throw { message: `Invalid Credentials`};
+                throw new HttpException(`Invalid Credentials`, HttpStatus.BAD_REQUEST);
             }
 
             return this.loginUser(user); 
 
-        } catch (error) {
-            return error.message;
-        }
-       
-
     }
 
-    async registerUser(createUserDto: CreateUserDto) {
-        try {
+    async registerUser(createUserDto: CreateUserDto): Promise<string> {
             const newUser = await this.userService.createUser(createUserDto);
 
             return this.loginUser(newUser);
-            
-        } catch (error) {
-            return error.message;
-        }
     }
 
-    private async loginUser(user: UserInterface) {
+    private async loginUser(user: UserInterface): Promise<string> {
         try {
             const payload = { email: user.email, sub: user._id, seller: user.seller };
             const access_token = await this.jwtService.sign(payload)
@@ -54,7 +43,7 @@ export class AuthService {
             return access_token;
 
         } catch (error) {
-            return error.message;
+            throw new HttpException(`Token service is not working`, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 

@@ -9,7 +9,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class CartController {
     constructor(private readonly cartService: CartService) {}
     
-    @UseGuards(AuthGuard('jwt'), CustomerGuard)
+    // @UseGuards(AuthGuard('jwt'), CustomerGuard)
     @Post('create/:customer_id')
     createAction(@Body() createCartDto: CreateCartDto, @Param('customer_id') customer_id: string): Promise<CartInterface> {
         return this.cartService.createCart(createCartDto, customer_id);

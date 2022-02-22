@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CartInterface } from 'src/cart/interface/cart.interface';
@@ -14,18 +14,17 @@ export class OrderService {
         @InjectModel('Product') private readonly productModel: Model<ProductInterface> 
         ) {}
     
-    async createOrder(createOrderDto: CreateOrderDto, customer_id: string) {
-        try {
+    async createOrder(createOrderDto: CreateOrderDto, customer_id: string): Promise<OrderInterface> {
             const { cart_id, payment_method, deliver_to } = createOrderDto;
             
             const cart = await this.cartModel.findOne({ _id: cart_id, customer_id: customer_id })
 
             if (!cart) {
-                throw { message: `Unauthorized Customer for this Cart` }
+                throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED);
             }
 
             if (cart.checkout_done) {
-                throw { message: `Cart's checkout has already been done.`}
+                throw new HttpException(`Cart's checkout has already been done.`, HttpStatus.BAD_REQUEST);
             }
 
             cart.checkout_done = true;
@@ -35,7 +34,7 @@ export class OrderService {
                 const { stock } = outdatedProduct;
 
                 if  (stock < cartProduct.quantity) {
-                    throw { message: `Product with reference_code: ${outdatedProduct.reference_code} has insufficient stock for the Cart quantity requested `};
+                    throw new HttpException(`Product with reference_code: ${outdatedProduct.reference_code} has insufficient stock for the Cart quantity requested `, HttpStatus.EXPECTATION_FAILED);
                 }
 
                 const updatedStock = Number(stock - cartProduct.quantity);
@@ -60,14 +59,12 @@ export class OrderService {
             newOrder.order_total = Number(orderTotal.toFixed(2));
 
             await newOrder.save();
+
+            if (!newOrder) {
+                throw new HttpException(`Order was not saved in DB`, HttpStatus.INTERNAL_SERVER_ERROR)
+            }
             
             return newOrder;
-
-        } catch (error) {
-            
-            return error.message;
-    
-        }
     }
 
     async findByCustomer(customer_id: string): Promise<OrderInterface[]> {
@@ -77,9 +74,7 @@ export class OrderService {
             return customerList;
 
         } catch (error) {
-            
-            return error.message;
-
+            throw new HttpException(`Invalid order_customer_id`, HttpStatus.BAD_REQUEST)
         }
     }
     
@@ -90,14 +85,11 @@ export class OrderService {
             return sellerList;
 
         } catch (error) {
-            
-            return error.message;
-
+            throw new HttpException(`Invalid Seller`, HttpStatus.BAD_REQUEST)
         }
     }
 
-    async findOne(params) {
-        try {
+    async findOne(params): Promise<OrderInterface> {
             const { order_id, customer_id } = params;
             const orderDetails = await this.orderModel.findOne({ 
                 _id: order_id, 
@@ -105,7 +97,7 @@ export class OrderService {
             })
             
             if (!orderDetails) {
-                throw { message: `Unauthorized Customer for this Order` }
+                throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED);
             }
 
             await orderDetails.populate('order_customer_id');
@@ -115,12 +107,5 @@ export class OrderService {
             await orderDetails.populate('cart_id.cart_products.cart_product_id.seller_id');
             
             return orderDetails;
-
-        } catch (error) {
-            
-            return error.message;
-
-        }
     }
-    
 }
