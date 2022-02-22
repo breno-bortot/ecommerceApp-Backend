@@ -1,12 +1,15 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { CustomerGuard } from 'src/user/guards/customer.guard';
 import { CartService } from './cart.service';
 import { CreateCartDto, UpdateCartDto } from './dto/cart.dtos';
 import { CartInterface } from './interface/cart.interface';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('cart')
 export class CartController {
     constructor(private readonly cartService: CartService) {}
-    //User authentication/ Customer authorization
+    
+    @UseGuards(AuthGuard('jwt'), CustomerGuard)
     @Post('create/:customer_id')
     createAction(@Body() createCartDto: CreateCartDto, @Param('customer_id') customer_id: string): Promise<CartInterface> {
         return this.cartService.createCart(createCartDto, customer_id);
