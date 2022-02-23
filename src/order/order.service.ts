@@ -17,24 +17,27 @@ export class OrderService {
     async createOrder(createOrderDto: CreateOrderDto, customer_id: string): Promise<OrderInterface> {
             const { cart_id, payment_method, deliver_to } = createOrderDto;
             
-            const cart = await this.cartModel.findOne({ _id: cart_id, customer_id: customer_id })
+            const outdatedCart = await this.cartModel.findOne({ _id: cart_id, customer_id: customer_id })
 
-            if (!cart) {
+            if (!outdatedCart) {
                 throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED);
             }
 
-            if (cart.checkout_done) {
+            if (outdatedCart.checkout_done) {
                 throw new HttpException(`Cart's checkout has already been done.`, HttpStatus.BAD_REQUEST);
             }
-
-            cart.checkout_done = true;
-
-            await Promise.all(cart.cart_products.map(async cartProduct => {
+           
+            await Promise.all(outdatedCart.cart_products.map(async cartProduct => {
                 const outdatedProduct = await this.productModel.findById(cartProduct.cart_product_id);
+                
+                if (!outdatedProduct) {
+                    throw new HttpException(`Invalid cart_product_Id`, HttpStatus.BAD_REQUEST);
+                }
+
                 const { stock } = outdatedProduct;
 
-                if  (stock < cartProduct.quantity) {
-                    throw new HttpException(`Product with reference_code: ${outdatedProduct.reference_code} has insufficient stock for the Cart quantity requested `, HttpStatus.EXPECTATION_FAILED);
+                if (stock < cartProduct.quantity) {
+                    throw new HttpException(`Product with reference_code: ${outdatedProduct.reference_code} has insufficient stock for the Cart quantity requested `, HttpStatus.BAD_REQUEST);
                 }
 
                 const updatedStock = Number(stock - cartProduct.quantity);
@@ -44,6 +47,8 @@ export class OrderService {
                     { stock: updatedStock }
                 )
             }))
+
+            const cart =  await this.cartModel.findByIdAndUpdate(cart_id, { checkout_done: true }, { new: true })
 
             const createOrderBody = {
                 order_customer_id: customer_id,
@@ -74,27 +79,28 @@ export class OrderService {
             return customerList;
 
         } catch (error) {
-            throw new HttpException(`Invalid order_customer_id`, HttpStatus.BAD_REQUEST)
+            throw new HttpException(`Invalid order_customer_id`, HttpStatus.BAD_REQUEST);
         }
     }
     
-    async findBySeller(seller_id: string): Promise<OrderInterface[]> {
+    async findBySeller(seller_id: string) {
         try {
-            const sellerList = await this.orderModel.find({ "order_sellers['seller_id']": seller_id });
-
+            const sellerList = await this.orderModel.find({ 'order_sellers.seller_id': seller_id });
+            
             return sellerList;
 
         } catch (error) {
-            throw new HttpException(`Invalid Seller`, HttpStatus.BAD_REQUEST)
+            throw new HttpException(`Invalid Seller`, HttpStatus.BAD_REQUEST);
         }
     }
 
     async findOne(params): Promise<OrderInterface> {
+        try {
             const { order_id, customer_id } = params;
             const orderDetails = await this.orderModel.findOne({ 
                 _id: order_id, 
                 order_customer_id: customer_id
-            })
+            });
             
             if (!orderDetails) {
                 throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED);
@@ -107,5 +113,8 @@ export class OrderService {
             await orderDetails.populate('cart_id.cart_products.cart_product_id.seller_id');
             
             return orderDetails;
+        } catch (error) {
+            throw new HttpException(`Invalid order || user`, HttpStatus.BAD_REQUEST);
+        }      
     }
 }

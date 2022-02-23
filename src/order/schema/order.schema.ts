@@ -7,7 +7,7 @@ export const OrderSchema = new mongoose.Schema({
         required: true
     },
     order_sellers: {
-        type: Array
+        type: [Object]
     },
     cart_id: {
         type: mongoose.Schema.Types.ObjectId,

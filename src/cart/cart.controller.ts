@@ -21,7 +21,7 @@ export class CartController {
     }
     //User authentication/ Customer authorization
     @Put('update/:cart_id/:customer_id')
-    updateAction(@Body() updateCartDto: CreateCartDto, @Param() params): Promise<CartInterface> {  
+    updateAction(@Body() updateCartDto: UpdateCartDto, @Param() params): Promise<CartInterface> {  
         return this.cartService.updateCart(updateCartDto, params)
     }
 }

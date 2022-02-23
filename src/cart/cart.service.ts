@@ -15,11 +15,17 @@ export class CartService {
             };
             const cart = await new this.cartModel(createCartBody)
                 .populate('cart_products.cart_product_id');
-            
+    
             const cartTotal = await cart.cart_products.reduce((acc, cartProduct) => {
+                if (!cartProduct.cart_product_id) {
+                    throw new HttpException(`Invalid cart_product_Id`, HttpStatus.BAD_REQUEST);
+                }
+
                 const price = cartProduct.cart_product_id.price * cartProduct.quantity;
+                
                 return acc + price;
             }, 0);
+
             cart.cart_total = Number(cartTotal.toFixed(2));
             
             const cartSellers = cart.cart_products.map(product => {
@@ -52,11 +58,11 @@ export class CartService {
         }
     }
 
-    async updateCart(updateCartDto, params): Promise<CartInterface> {
-            const cart = await this.cartModel.findOne({ _id: params.cart_id, customer_id: params.customer_id })
-
+    async updateCart(updateCartDto, params): Promise<CartInterface> { 
+        const cart = await this.cartModel.findOne({ _id: params.cart_id, customer_id: params.customer_id })
+            
             if (!cart) {
-                throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED)
+                throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED);
             }
             
             cart.cart_products = updateCartDto.cart_products;
@@ -64,6 +70,10 @@ export class CartService {
             await cart.populate('cart_products.cart_product_id');
        
             const cartTotal = await cart.cart_products.reduce((acc, cartProduct) => {
+                if (!cartProduct.cart_product_id) {
+                    throw new HttpException(`Invalid Cart_product_Id`, HttpStatus.BAD_REQUEST);
+                }
+
                 const price = cartProduct.cart_product_id.price * cartProduct.quantity;
                 return acc + price;
             }, 0);
@@ -72,7 +82,7 @@ export class CartService {
             const updatedCart = await cart.save();
 
             if (!updatedCart) {
-                throw new HttpException(`Cart was not updated in DB`, HttpStatus.INTERNAL_SERVER_ERROR)
+                throw new HttpException(`Cart was not updated in DB`, HttpStatus.INTERNAL_SERVER_ERROR);
             }
            
             return updatedCart;
