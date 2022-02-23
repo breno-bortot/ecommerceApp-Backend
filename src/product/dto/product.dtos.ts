@@ -17,17 +17,19 @@ export class CreateProductDto {
     @IsString()
     readonly description?: string;
 
+    @Transform(({ value }) => typeof(value) === 'string' ? Number(value) : value)
     @IsNumber()
     readonly price: number;
 
+    @Transform(({ value }) => typeof(value) === 'string' ? Number(value) : value)
     @IsNumber()
     readonly stock: number;
-
+    
     @Transform(({ value }) => typeof(value) === 'string' ? sanitize(value, { disallowedTagsMode:"escape" }) : value)
     @ValidateIf(CreateProductDto => CreateProductDto.imagePath
         )
     @IsString()
-    readonly imagePath?: string;
+    imagePath?: string;
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto)  {}
