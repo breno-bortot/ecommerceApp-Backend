@@ -58,8 +58,8 @@ export class CartService {
         }
     }
 
-    async updateCart(updateCartDto, params): Promise<CartInterface> { 
-        const cart = await this.cartModel.findOne({ _id: params.cart_id, customer_id: params.customer_id })
+    async updateCart(updateCartDto, cart_id, customer_id): Promise<CartInterface> { 
+        const cart = await this.cartModel.findOne({ _id: cart_id, customer_id })
             
             if (!cart) {
                 throw new HttpException(`Unauthorized customer`, HttpStatus.UNAUTHORIZED);

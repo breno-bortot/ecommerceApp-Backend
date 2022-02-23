@@ -5,33 +5,27 @@ import { UserInterface } from './interface/user.interface';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from './utilities/user.decorator';
-import { SellerGuard } from './guards/seller.guard';
 
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) {}
     
-    @UseGuards(AuthGuard('jwt'), SellerGuard)
-    @Get('listAll')
-    findAllAction(@User() userId: string ) {
-        
-        return this.userService.findAll();
+    @UseGuards(AuthGuard('jwt'))
+    @Get('account')
+    findAction(@User() userId: string): Promise<UserInterface> { 
+        return this.userService.findUserById(userId);
     }
     
-    
-    @Get(':userId')
-    findAction(@Param() params: UserParams): Promise<UserInterface> { 
-        return this.userService.findUserById(params.userId);
+    @UseGuards(AuthGuard('jwt'))
+    @Put('account')
+    updateAction(@User() userId: string, @Body() updateUserDto: UpdateUserDto): Promise<UserInterface> {
+        return this.userService.updateUser(userId, updateUserDto);
     }
-    //User authentication
-    @Put(':userId')
-    updateAction(@Body() updateUserDto: UpdateUserDto, @Param() params: UserParams): Promise<UserInterface> {
-        return this.userService.updateUser(params.userId, updateUserDto);
-    }
-    //User authentication
-    @Delete(':userId')
-    deleteAction(@Param() params: UserParams): Promise<UserInterface> {
-        return this.userService.deleteUser(params.userId);
+
+    @UseGuards(AuthGuard('jwt'))
+    @Delete('account')
+    deleteAction(@User() userId: string): Promise<UserInterface> {
+        return this.userService.deleteUser(userId);
     }
 
 }

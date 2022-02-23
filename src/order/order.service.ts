@@ -94,9 +94,8 @@ export class OrderService {
         }
     }
 
-    async findOne(params): Promise<OrderInterface> {
+    async findOne(order_id: string, customer_id: string): Promise<OrderInterface> {
         try {
-            const { order_id, customer_id } = params;
             const orderDetails = await this.orderModel.findOne({ 
                 _id: order_id, 
                 order_customer_id: customer_id

@@ -4,25 +4,32 @@ import { CartService } from './cart.service';
 import { CreateCartDto, UpdateCartDto } from './dto/cart.dtos';
 import { CartInterface } from './interface/cart.interface';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/user/utilities/user.decorator';
 
 @Controller('cart')
 export class CartController {
     constructor(private readonly cartService: CartService) {}
     
-    // @UseGuards(AuthGuard('jwt'), CustomerGuard)
-    @Post('create/:customer_id')
-    createAction(@Body() createCartDto: CreateCartDto, @Param('customer_id') customer_id: string): Promise<CartInterface> {
+    @UseGuards(AuthGuard('jwt'), CustomerGuard)
+    @Post('create')
+    createAction(@Body() createCartDto: CreateCartDto, @User() customer_id: string): Promise<CartInterface> {
         return this.cartService.createCart(createCartDto, customer_id);
     }   
-    //User authentication/ Customer authorization
+    
+    @UseGuards(AuthGuard('jwt'), CustomerGuard)
     @Get(':cart_id')
     findByIdAction(@Param('cart_id') cart_id: string): Promise<CartInterface>  {
         return this.cartService.findCartbyId(cart_id);
     }
-    //User authentication/ Customer authorization
-    @Put('update/:cart_id/:customer_id')
-    updateAction(@Body() updateCartDto: UpdateCartDto, @Param() params): Promise<CartInterface> {  
-        return this.cartService.updateCart(updateCartDto, params)
+    
+    @UseGuards(AuthGuard('jwt'), CustomerGuard)
+    @Put('update/:cart_id')
+    updateAction(
+        @Body() updateCartDto: UpdateCartDto, 
+        @Param('cart_id') cart_id: string,
+        @User() customer_id: string
+    ): Promise<CartInterface> {  
+        return this.cartService.updateCart(updateCartDto, cart_id, customer_id)
     }
 }
 
