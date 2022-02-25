@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Inject, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Inject, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
 import { CustomerGuard } from 'src/user/guards/customer.guard';
 import { CartService } from './cart.service';
 import { CreateCartDto, UpdateCartDto } from './dto/cart.dtos';
@@ -6,6 +6,7 @@ import { CartInterface } from './interface/cart.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/utilities/user.decorator';
 import { AuthService } from 'src/auth/auth.service';
+import { Response } from 'express';
 
 @Controller('cart')
 export class CartController {
@@ -16,18 +17,24 @@ export class CartController {
     
     @UseGuards(AuthGuard('jwt'), CustomerGuard)
     @Post('addToCart')
-    async addToCartAction(@Body() createCartDto: CreateCartDto, @User() user) {
+    async addToCartAction(@Body() createCartDto: CreateCartDto, @User() user, @Res({ passthrough: true }) response: Response) {
         if (user.cart_id) {
             return this.cartService.updateCart(createCartDto, user.cart_id, user.sub);
         }
 
         const newCart = await this.cartService.createCart(createCartDto, user.sub);
-       
-        return this.authService.addCartIdToUser(user, newCart['_id']);
+        const newToken = await this.authService.addCartIdToUser(user, newCart['_id']);
+        
+        response.cookie('USER_TOKEN', newToken, { 
+            httpOnly: true,
+            maxAge: 900000 
+        });
+        
+        return newCart;
     }   
     
     @UseGuards(AuthGuard('jwt'), CustomerGuard)
-    @Get('')
+    @Get()
     findByIdAction(@User() user): Promise<CartInterface>  {
         return this.cartService.findCartbyId(user.cart_id);
     }

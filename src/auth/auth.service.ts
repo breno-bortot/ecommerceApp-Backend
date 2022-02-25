@@ -3,7 +3,6 @@ import { CreateUserDto, LoginDto } from 'src/user/dto/user.dtos';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserInterface } from 'src/user/interface/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +23,7 @@ export class AuthService {
             if (!passwordCheck) {
                 throw new HttpException(`Invalid Credentials`, HttpStatus.BAD_REQUEST);
             }
-
+            
             return this.signUser(user); 
 
     }
