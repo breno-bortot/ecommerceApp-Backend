@@ -39,10 +39,10 @@ export class ProductController {
     @UseGuards(AuthGuard('jwt'), SellerGuard)
     @Post('create')
     @UseInterceptors(FileInterceptor('image', storage ))
-    createAction(@UploadedFile() file: Express.Multer.File, @Body() createProductDto: CreateProductDto, @User() seller_id: string): Promise<ProductInterface>{
+    createAction(@UploadedFile() file: Express.Multer.File, @Body() createProductDto: CreateProductDto, @User() user): Promise<ProductInterface>{
         createProductDto.imagePath = file.path;
       
-        return this.productService.createProduct(createProductDto, seller_id);
+        return this.productService.createProduct(createProductDto, user.sub);
     }
     
     @Get('list')
@@ -52,8 +52,8 @@ export class ProductController {
     
     @UseGuards(AuthGuard('jwt'), SellerGuard)
     @Get('seller/list')
-    listBySellerAction(@User() seller_id: string): Promise<ProductInterface[]>{
-        return this.productService.findBySeller(seller_id);
+    listBySellerAction(@User() user): Promise<ProductInterface[]>{
+        return this.productService.findBySeller(user.sub);
     }
     
     @Get('details/:productId')

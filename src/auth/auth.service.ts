@@ -25,19 +25,29 @@ export class AuthService {
                 throw new HttpException(`Invalid Credentials`, HttpStatus.BAD_REQUEST);
             }
 
-            return this.loginUser(user); 
+            return this.signUser(user); 
 
     }
 
     async registerUser(createUserDto: CreateUserDto): Promise<string> {
             const newUser = await this.userService.createUser(createUserDto);
 
-            return this.loginUser(newUser);
+            return this.signUser(newUser);
     }
 
-    private async loginUser(user: UserInterface): Promise<string> {
+    addCartIdToUser(user, cartId) {
+        user.cart_id = cartId;
+
+        return this.signUser(user);
+    }
+
+    private async signUser(user): Promise<string> {
         try {
-            const payload = { email: user.email, sub: user._id, seller: user.seller };
+            const payload = { 
+                sub: user._id || user.sub, 
+                seller: user.seller, 
+                cart_id: user.cart_id 
+            };
             const access_token = await this.jwtService.sign(payload)
             
             return access_token;

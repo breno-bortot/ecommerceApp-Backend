@@ -79,6 +79,12 @@ export class CartService {
             }, 0);
             cart.cart_total = Number(cartTotal.toFixed(2));    
             
+            const cartSellers = cart.cart_products.map(product => {
+                return { seller_id: product.cart_product_id.seller_id };
+            })
+            cart.cart_sellers = cartSellers;
+            cart.updated_at = new Date(Date.now());
+
             const updatedCart = await cart.save();
 
             if (!updatedCart) {

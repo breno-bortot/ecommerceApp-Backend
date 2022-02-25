@@ -13,27 +13,26 @@ export class OrderController {
     
     @UseGuards(AuthGuard('jwt'), CustomerGuard)
     @Post('create')
-    checkoutAction(@Body() createOrderDto: CreateOrderDto, @User() custumor_id: string): Promise<OrderInterface> {
-        return this.orderService.createOrder(createOrderDto, custumor_id);
+    checkoutAction(@Body() createOrderDto: CreateOrderDto, @User() user): Promise<OrderInterface> {
+        return this.orderService.createOrder(createOrderDto, user.sub);
     }
     
     @UseGuards(AuthGuard('jwt'), CustomerGuard)
     @Get('customer_list')
-    listByCustomerAction(@User() customer_id: string): Promise<OrderInterface[]> {
-        return this.orderService.findByCustomer(customer_id);
+    listByCustomerAction(@User() user): Promise<OrderInterface[]> {
+        return this.orderService.findByCustomer(user.sub);
     }
     
     @UseGuards(AuthGuard('jwt'), SellerGuard)
     @Get('seller_list')
-    listBySellerAction(@User() seller_id: string): Promise<OrderInterface[]> {
-        console.log(seller_id)
-        return this.orderService.findBySeller(seller_id);
+    listBySellerAction(@User() user): Promise<OrderInterface[]> {
+        return this.orderService.findBySeller(user.sub);
     }
     
     @UseGuards(AuthGuard('jwt'), CustomerGuard)
     @Get('details/:order_id')
-    findOneAction(@Param('order_id') order_id: string, @User() customer_id: string): Promise<OrderInterface> {
-        return this.orderService.findOne(order_id, customer_id);
+    findOneAction(@Param('order_id') order_id: string, @User() user): Promise<OrderInterface> {
+        return this.orderService.findOne(order_id, user.sub);
     }
 
 }

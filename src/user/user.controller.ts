@@ -1,6 +1,5 @@
 import { Controller, Get, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { UpdateUserDto } from './dto/user.dtos';
-import { UserParams } from './dto/user.params';
 import { UserInterface } from './interface/user.interface';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -12,20 +11,20 @@ export class UserController {
     
     @UseGuards(AuthGuard('jwt'))
     @Get('account')
-    findAction(@User() userId: string): Promise<UserInterface> { 
-        return this.userService.findUserById(userId);
+    findAction(@User() user): Promise<UserInterface> { 
+        return this.userService.findUserById(user.sub);
     }
     
     @UseGuards(AuthGuard('jwt'))
     @Put('account')
-    updateAction(@User() userId: string, @Body() updateUserDto: UpdateUserDto): Promise<UserInterface> {
-        return this.userService.updateUser(userId, updateUserDto);
+    updateAction(@User() user, @Body() updateUserDto: UpdateUserDto): Promise<UserInterface> {
+        return this.userService.updateUser(user.sub, updateUserDto);
     }
 
     @UseGuards(AuthGuard('jwt'))
     @Delete('account')
-    deleteAction(@User() userId: string): Promise<UserInterface> {
-        return this.userService.deleteUser(userId);
+    deleteAction(@User() user): Promise<UserInterface> {
+        return this.userService.deleteUser(user.sub);
     }
 
 }

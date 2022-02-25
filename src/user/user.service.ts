@@ -48,7 +48,6 @@ export class UserService {
             const updatedAt = Date.now();
             const updateUserBody = { ...updateUserDto, updated_at: updatedAt };
             const updatedUser = await this.userModel.findByIdAndUpdate(userId, updateUserBody, { new: true });
-            console.log(updatedUser)
 
             if (!updatedUser) {
                 throw new HttpException(`User Not found`, HttpStatus.NOT_FOUND);
