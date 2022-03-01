@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseInterceptors, UploadedFile, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor  } from '@nestjs/platform-express';
+import { ApiBadRequestResponse, ApiConsumes, ApiCookieAuth, ApiCreatedResponse, ApiFoundResponse, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { parse } from 'path';
 import { SellerGuard } from 'src/user/guards/seller.guard';
@@ -9,6 +10,7 @@ import { CreateProductDto, ProductQueryDto, UpdateProductDto } from './dto/produ
 import { ProductParams } from './dto/product.params';
 import { ProductInterface } from './interface/product.interface';
 import { ProductService } from './product.service';
+import { ProductSwagger } from './swagger/product.swagger';
 
 const maxSize = 5
  * 1024 * 1024;
@@ -37,38 +39,88 @@ export class ProductController {
     constructor(private readonly productService: ProductService) {}
    
     @UseGuards(AuthGuard('jwt'), SellerGuard)
-    @Post('create')
+    @ApiCookieAuth()
+    @Post()
+    @ApiOperation({ summary: 'Product Registration'})
+    @ApiCreatedResponse({ 
+        description: 'Product created',
+        type: ProductSwagger 
+    })
+    @ApiBadRequestResponse({ description: 'Invalid parameters' })
+    @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
     @UseInterceptors(FileInterceptor('image', storage ))
+    @ApiConsumes('multipart/form-data')
     createAction(@UploadedFile() file: Express.Multer.File, @Body() createProductDto: CreateProductDto, @User() user): Promise<ProductInterface>{
-        createProductDto.imagePath = file.path;
-      
+        if (file) {
+            createProductDto.imagePath = file.path;
+        }
+
         return this.productService.createProduct(createProductDto, user.sub);
     }
     
+
     @Get('list')
+    @ApiOperation({ summary: 'List/Search Products'})
+    @ApiOkResponse({ 
+        description: 'Products list',
+        type: [ProductSwagger]
+    })
     listAllAction(@Query() query: ProductQueryDto): Promise<ProductInterface[]>{
         return this.productService.findAll(query);
     }
     
+
     @UseGuards(AuthGuard('jwt'), SellerGuard)
+    @ApiCookieAuth()
     @Get('seller/list')
+    @ApiOperation({ summary: `List of Seller's products` })
+    @ApiOkResponse({ 
+        description: `Seller's products list`,
+        type: [ProductSwagger]
+    })
+    @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
     listBySellerAction(@User() user): Promise<ProductInterface[]>{
         return this.productService.findBySeller(user.sub);
     }
     
-    @Get('details/:productId')
+
+    @Get('details/:product_id')
+    @ApiOperation({ summary: 'Product details'})
+    @ApiFoundResponse({ 
+        description: 'Product found',
+        type: ProductSwagger
+    })
+    @ApiBadRequestResponse({ description: 'Invalid product-id'})
     findOneAction(@Param() params: ProductParams): Promise<ProductInterface>{
         return this.productService.findOneById(params);
     }
    
+
     @UseGuards(AuthGuard('jwt'), SellerGuard)
-    @Put(':productId')
+    @ApiCookieAuth()
+    @Put(':product_id')
+    @ApiOperation({ summary: 'Update product'})
+    @ApiCreatedResponse({ 
+        description: 'Product updated',
+        type: ProductSwagger 
+    })
+    @ApiBadRequestResponse({ description: 'Invalid parameters' })
+    @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+    @ApiBadRequestResponse({ description: 'Invalid product-id'})
+    @UseInterceptors(FileInterceptor('image', storage ))
+    @ApiConsumes('multipart/form-data')
     updateAction(@Body() updateProductDto: UpdateProductDto, @Param() params: ProductParams): Promise<ProductInterface>{
         return this.productService.updateProduct(updateProductDto, params);
     }
     
+
     @UseGuards(AuthGuard('jwt'), SellerGuard)
-    @Delete(':productId')
+    @ApiCookieAuth()
+    @Delete(':product_id')
+    @ApiOperation({ summary: 'Delete product'})
+    @ApiOkResponse({ description: 'Product deleted successfully' })
+    @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
+    @ApiBadRequestResponse({ description: 'Invalid product-id'})
     deleteAction(@Param() params: ProductParams): Promise<ProductInterface>{
         return this.productService.deleteProduct(params);
     }

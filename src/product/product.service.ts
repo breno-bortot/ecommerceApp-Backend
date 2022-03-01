@@ -78,7 +78,7 @@ export class ProductService {
 
     async findOneById(params: ProductParams): Promise<ProductInterface> {
         try {
-            const productDetails = await this.productModel.findById(params.productId);
+            const productDetails = await this.productModel.findById(params.product_id);
             await productDetails.populate('seller_id');
 
             if (!productDetails) {
@@ -96,7 +96,7 @@ export class ProductService {
         try {
             const updatedAt = Date.now();
             const updateProductBody = { ...updateProductDto, updated_at: updatedAt };
-            const updatedProduct = await this.productModel.findByIdAndUpdate(params.productId, updateProductBody, { new: true });
+            const updatedProduct = await this.productModel.findByIdAndUpdate(params.product_id, updateProductBody, { new: true });
 
             if (!updatedProduct) {
                 throw new HttpException(`Product not found`, HttpStatus.NOT_FOUND)
@@ -111,7 +111,7 @@ export class ProductService {
 
     async deleteProduct(params: ProductParams): Promise<ProductInterface> {
         try {
-            const deletedProduct = await this.productModel.findByIdAndDelete(params.productId);
+            const deletedProduct = await this.productModel.findByIdAndDelete(params.product_id);
 
             if (!deletedProduct) {
                 throw new HttpException(`Product not found`, HttpStatus.NOT_FOUND)

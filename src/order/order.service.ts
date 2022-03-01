@@ -14,8 +14,10 @@ export class OrderService {
         @InjectModel('Product') private readonly productModel: Model<ProductInterface> 
         ) {}
     
-    async createOrder(createOrderDto: CreateOrderDto, customer_id: string): Promise<OrderInterface> {
-            const { cart_id, payment_method, deliver_to } = createOrderDto;
+    async createOrder(createOrderDto: CreateOrderDto, user: any): Promise<OrderInterface> {
+            const { payment_method, deliver_to } = createOrderDto;
+            const { sub, cart_id } = user;
+            const customer_id = sub;
             
             const outdatedCart = await this.cartModel.findOne({ _id: cart_id, customer_id: customer_id })
 
